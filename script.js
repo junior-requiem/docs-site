@@ -1,17 +1,8 @@
 const links = document.querySelectorAll('.nav-link');
 const sections = [...document.querySelectorAll('.doc-section, .hero')];
-const breadcrumb = document.querySelector('.breadcrumb');
-
-const getLinkLabel = (link) => link?.dataset.breadcrumbLabel || link?.textContent?.trim() || 'Overview';
-
-const syncBreadcrumbWithActiveLink = () => {
-  const activeLink = document.querySelector('.nav-link.active');
-  if (!breadcrumb || !activeLink) {
-    return;
-  }
-
-  breadcrumb.textContent = `Documentation > ${getLinkLabel(activeLink)}`;
-};
+const docSearch = document.querySelector('#docSearch');
+const docSections = [...document.querySelectorAll('.doc-section')];
+const noResults = document.querySelector('#noResults');
 
 const updateActiveLink = () => {
   const offset = window.scrollY + 120;
@@ -41,34 +32,41 @@ links.forEach((link) => {
 updateActiveLink();
 window.addEventListener('scroll', updateActiveLink);
 
-const initializeNavGroupCollapse = () => {
-  if (!enableNavGroupCollapse) {
+const normalize = (value = '') => value.toLowerCase().trim();
+
+const filterSections = () => {
+  if (!docSearch || !noResults) {
     return;
   }
 
-  navGroups.forEach((group) => {
-    const label = group.querySelector('.nav-group-label');
-    if (!label) {
-      return;
+  const query = normalize(docSearch.value);
+  let matches = 0;
+
+  docSections.forEach((section) => {
+    const headingText = normalize(section.querySelector('h2')?.textContent || '');
+    const listText = normalize(
+      [...section.querySelectorAll('li')]
+        .map((item) => item.textContent || '')
+        .join(' '),
+    );
+    const shouldShow = !query || headingText.includes(query) || listText.includes(query);
+
+    section.hidden = !shouldShow;
+    if (shouldShow) {
+      matches += 1;
     }
-
-    label.setAttribute('role', 'button');
-    label.setAttribute('tabindex', '0');
-    label.setAttribute('aria-expanded', 'true');
-
-    const toggleGroup = () => {
-      const isCollapsed = group.classList.toggle('is-collapsed');
-      label.setAttribute('aria-expanded', String(!isCollapsed));
-    };
-
-    label.addEventListener('click', toggleGroup);
-    label.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        toggleGroup();
-      }
-    });
   });
+
+  noResults.hidden = matches > 0;
 };
 
-initializeNavGroupCollapse();
+if (docSearch) {
+  docSearch.addEventListener('input', filterSections);
+  docSearch.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      docSearch.value = '';
+      filterSections();
+      docSearch.blur();
+    }
+  });
+}

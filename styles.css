@@ -16,11 +16,14 @@
   --card-border-light: #d3e0f2;
   --card-text-primary: var(--navy-900);
   --card-text-secondary: var(--navy-700);
-  --color-btn-secondary-border: var(--card-text-secondary);
-  --color-btn-secondary-text: var(--card-text-primary);
-  --color-btn-secondary-hover-bg: rgba(13, 35, 64, 0.08);
-  --color-btn-secondary-hover-border: var(--card-text-primary);
-  --color-btn-secondary-hover-text: var(--card-text-primary);
+  --color-input-bg: rgba(8, 23, 45, 0.8);
+  --color-input-border: rgba(152, 206, 255, 0.32);
+  --color-input-text: var(--text-primary);
+  --color-input-placeholder: rgba(189, 216, 247, 0.75);
+  --color-focus-ring: rgba(107, 180, 255, 0.5);
+  --space-input-pad-y: 0.6rem;
+  --space-input-pad-right: 0.75rem;
+  --space-input-pad-left: 2rem;
 }
 
 
@@ -79,6 +82,40 @@ body {
   align-items: center;
   gap: 0.85rem;
   margin-bottom: 1.8rem;
+}
+
+.sidebar-search {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.sidebar-search-icon {
+  position: absolute;
+  left: 0.68rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+#docSearch {
+  width: 100%;
+  border: 1px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  border-radius: 0.6rem;
+  padding: var(--space-input-pad-y) var(--space-input-pad-right) var(--space-input-pad-y)
+    var(--space-input-pad-left);
+}
+
+#docSearch::placeholder {
+  color: var(--color-input-placeholder);
+}
+
+#docSearch:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .brand-mark {
@@ -350,6 +387,15 @@ h2 {
 
 .doc-section li {
   margin-bottom: 0.35rem;
+}
+
+#noResults {
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border-radius: 0.8rem;
+  border: 1px dashed var(--card-border-light);
+  background: var(--card-bg-light);
+  color: var(--card-text-secondary);
 }
 
 @media (max-width: 960px) {
