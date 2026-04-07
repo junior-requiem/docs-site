@@ -203,7 +203,7 @@ h1,
 }
 
 .nav-link.active {
-  border-left: 3px solid var(--color-accent-amber);
+  border-left: 3px solid var(--blue-400);
   padding-left: calc(0.75rem - 3px);
 }
 
@@ -309,7 +309,13 @@ h1,
 
 .hero:hover,
 .doc-section:hover {
-  border-color: var(--color-accent-amber);
+  border-color: var(--card-border-light);
+}
+
+.doc-section a {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: none;
 }
 
 h2 {
