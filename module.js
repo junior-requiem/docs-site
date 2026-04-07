@@ -11,6 +11,8 @@ const sectionContent = document.querySelector('#sectionContent');
 const sectionPager = document.querySelector('#sectionPager');
 const transitionTarget = document.querySelector('.content');
 const transitionDurationMs = 240;
+const FOUNDATION_MODULE_ID = 'foundation-setup';
+const FOUNDATION_MODULE_FILE = 'oracle_payroll_section1_learning_module.html';
 
 const params = new URLSearchParams(window.location.search);
 const selectedId = params.get('id') || modules[0].id;
@@ -69,12 +71,93 @@ const setupSectionTransitions = () => {
   });
 };
 
-const renderSection = () => {
+const buildCompletionButton = (isComplete) => `
+  <div class="module-actions">
+    <button class="module-btn ${isComplete ? 'is-complete' : ''}" id="completeSectionBtn">
+      ${isComplete ? 'Completed ✓' : 'Mark section completed'}
+    </button>
+  </div>
+`;
+
+const bindCompletionToggle = () => {
+  const completeSectionBtn = document.querySelector('#completeSectionBtn');
+  if (!completeSectionBtn) return;
+
+  completeSectionBtn.addEventListener('click', () => {
+    if (completedModules.has(activeModule.id)) {
+      completedModules.delete(activeModule.id);
+      completeSectionBtn.textContent = 'Mark section completed';
+      completeSectionBtn.classList.remove('is-complete');
+    } else {
+      completedModules.add(activeModule.id);
+      completeSectionBtn.textContent = 'Completed ✓';
+      completeSectionBtn.classList.add('is-complete');
+    }
+    saveProgress();
+  });
+};
+
+const injectHtmlWithScripts = (target, html) => {
+  const fragment = document.createRange().createContextualFragment(html);
+  const scripts = [...fragment.querySelectorAll('script')];
+  scripts.forEach((script) => script.remove());
+
+  target.innerHTML = '';
+  target.appendChild(fragment);
+
+  scripts.forEach((script) => {
+    const nextScript = document.createElement('script');
+    if (script.src) {
+      nextScript.src = script.src;
+      nextScript.async = false;
+    }
+    nextScript.textContent = script.textContent;
+    target.appendChild(nextScript);
+  });
+};
+
+const renderFoundationModule = async (isComplete) => {
+  sectionContent.innerHTML = '<p class="module-loading">Loading Section 1 learning module…</p>';
+
+  try {
+    const response = await fetch(FOUNDATION_MODULE_FILE, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Unable to load module content: ${response.status}`);
+
+    const foundationHtml = await response.text();
+    sectionContent.innerHTML = `
+      <div class="foundation-module-inline" id="foundationModuleInline"></div>
+      ${buildCompletionButton(isComplete)}
+    `;
+
+    const foundationTarget = document.querySelector('#foundationModuleInline');
+    if (foundationTarget) {
+      injectHtmlWithScripts(foundationTarget, foundationHtml);
+    }
+
+    bindCompletionToggle();
+  } catch (error) {
+    sectionContent.innerHTML = `
+      <div class="module-error" role="alert">
+        <strong>Unable to load Section 1 interactive content.</strong>
+        <p>${error.message}</p>
+      </div>
+      ${buildCompletionButton(isComplete)}
+    `;
+    bindCompletionToggle();
+  }
+};
+
+const renderSection = async () => {
   const isComplete = completedModules.has(activeModule.id);
   breadcrumb.textContent = `Documentation > ${activeModule.title}`;
   sectionKicker.textContent = `Section ${activeModule.sections}`;
   sectionTitle.textContent = activeModule.title;
   sectionSummary.textContent = activeModule.summary;
+
+  if (activeModule.id === FOUNDATION_MODULE_ID) {
+    await renderFoundationModule(isComplete);
+    return;
+  }
 
   sectionContent.innerHTML = `
     <h3>What you'll learn</h3>
@@ -91,26 +174,10 @@ const renderSection = () => {
         .join('')}
     </ul>
 
-    <div class="module-actions">
-      <button class="module-btn ${isComplete ? 'is-complete' : ''}" id="completeSectionBtn">
-        ${isComplete ? 'Completed ✓' : 'Mark section completed'}
-      </button>
-    </div>
+    ${buildCompletionButton(isComplete)}
   `;
 
-  const completeSectionBtn = document.querySelector('#completeSectionBtn');
-  completeSectionBtn.addEventListener('click', () => {
-    if (completedModules.has(activeModule.id)) {
-      completedModules.delete(activeModule.id);
-      completeSectionBtn.textContent = 'Mark section completed';
-      completeSectionBtn.classList.remove('is-complete');
-    } else {
-      completedModules.add(activeModule.id);
-      completeSectionBtn.textContent = 'Completed ✓';
-      completeSectionBtn.classList.add('is-complete');
-    }
-    saveProgress();
-  });
+  bindCompletionToggle();
 };
 
 const renderPager = () => {
