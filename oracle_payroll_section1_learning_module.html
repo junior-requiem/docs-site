@@ -1,0 +1,607 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1a365d;--blue:#2b6cb0;--teal:#185FA5;--green:#48bb78;--red:#e53e3e;--orange:#f6ad55;--surface:var(--color-background-primary);--surface2:var(--color-background-secondary);--border:var(--color-border-tertiary);--text:var(--color-text-primary);--muted:var(--color-text-secondary)}
+body{font-family:var(--font-sans);color:var(--text);background:transparent}
+.shell{display:flex;min-height:680px;border:0.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.sidebar{width:220px;min-width:220px;background:var(--surface2);border-right:0.5px solid var(--border);display:flex;flex-direction:column;padding:0}
+.brand{padding:16px 16px 12px;border-bottom:0.5px solid var(--border)}
+.brand-tag{font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.brand-title{font-size:14px;font-weight:500;color:var(--text);line-height:1.3}
+.nav-list{padding:10px 8px;flex:1;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 8px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--muted);margin-bottom:2px;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:var(--surface);color:var(--text);font-weight:500}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:all .15s}
+.nav-item.active .nav-dot{background:#2b6cb0}
+.nav-item.done .nav-dot{background:#48bb78}
+.nav-meta{padding:12px 16px;border-top:0.5px solid var(--border);font-size:12px;color:var(--muted)}
+.progress-bar{height:4px;border-radius:2px;background:var(--border);margin-top:6px;overflow:hidden}
+.progress-fill{height:100%;background:#2b6cb0;border-radius:2px;transition:width .4s}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:14px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.section-title{font-size:17px;font-weight:500;color:var(--text);margin-top:2px}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;background:var(--color-background-info);color:var(--color-text-info)}
+.content{flex:1;overflow-y:auto;padding:20px}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.card-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.icon-blue{background:#E6F1FB;color:#185FA5}
+.icon-teal{background:#E1F5EE;color:#0F6E56}
+.icon-amber{background:#FAEEDA;color:#854F0B}
+.icon-red{background:#FCEBEB;color:#A32D2D}
+.icon-purple{background:#EEEDFE;color:#3C3489}
+.prose{font-size:14px;line-height:1.7;color:var(--text)}
+.prose p{margin-bottom:10px}
+.prose p:last-child{margin-bottom:0}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;margin:2px 3px 2px 0;vertical-align:middle}
+.tag-blue{background:#E6F1FB;color:#185FA5}
+.tag-green{background:#EAF3DE;color:#3B6D11}
+.tag-red{background:#FCEBEB;color:#A32D2D}
+.tag-amber{background:#FAEEDA;color:#854F0B}
+.tag-gray{background:var(--surface2);color:var(--muted);border:0.5px solid var(--border)}
+.alert{padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:12px;display:flex;gap:10px}
+.alert-icon{flex-shrink:0;font-size:14px;margin-top:1px}
+.alert-warn{background:#FAEEDA;color:#633806;border:0.5px solid #FAC775}
+.alert-danger{background:#FCEBEB;color:#501313;border:0.5px solid #F7C1C1}
+.alert-success{background:#EAF3DE;color:#173404;border:0.5px solid #C0DD97}
+.alert-info{background:#E6F1FB;color:#042C53;border:0.5px solid #B5D4F4}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.list-items{list-style:none;padding:0}
+.list-items li{padding:6px 0;font-size:13px;color:var(--text);border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.list-items li:last-child{border-bottom:none}
+.list-items li::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:#2b6cb0;flex-shrink:0;margin-top:6px}
+.nav-path{font-size:12px;font-family:var(--font-mono);padding:8px 12px;background:var(--surface2);border-radius:6px;color:var(--muted);border:0.5px solid var(--border);margin-bottom:10px}
+.mental-model{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.mm-card{padding:12px 14px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface2)}
+.mm-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.mm-value{font-size:13px;font-weight:500;color:var(--text);line-height:1.5}
+.takeaway{background:#E6F1FB;border:0.5px solid #B5D4F4;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.6;color:#042C53;margin-top:6px}
+.takeaway strong{color:#0C447C;font-weight:500;display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.quiz-q{font-size:14px;font-weight:500;color:var(--text);margin-bottom:12px;line-height:1.6}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;border:0.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:13px;cursor:pointer;color:var(--text);transition:all .15s}
+.quiz-option:hover:not(:disabled){background:var(--surface2);border-color:var(--color-border-secondary)}
+.quiz-option.correct{background:#EAF3DE;border-color:#C0DD97;color:#173404}
+.quiz-option.wrong{background:#FCEBEB;border-color:#F7C1C1;color:#501313}
+.quiz-result{margin-top:10px;font-size:13px;line-height:1.6;padding:10px 12px;border-radius:7px}
+.score-bar{display:flex;gap:8px;align-items:center;padding:12px 16px;background:var(--surface2);border-radius:10px;margin-bottom:16px;border:0.5px solid var(--border)}
+.score-num{font-size:22px;font-weight:500;color:#2b6cb0}
+.score-den{font-size:14px;color:var(--muted)}
+.score-label{font-size:13px;color:var(--muted);margin-left:4px}
+.bottom-nav{padding:14px 20px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:0.5px solid var(--color-border-secondary);background:var(--surface);color:var(--text)}
+.btn:hover{background:var(--surface2)}
+.btn-primary{background:#2b6cb0;color:#fff;border-color:#2b6cb0}
+.btn-primary:hover{background:#1a365d}
+.btn:disabled{opacity:.4;cursor:default}
+.divider{border:none;border-top:0.5px solid var(--border);margin:14px 0}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:20px;border:0.5px solid var(--border);color:var(--muted);margin-right:6px;margin-bottom:4px}
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ov-card{padding:12px 14px;border-radius:10px;border:0.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .15s}
+.ov-card:hover{border-color:var(--color-border-secondary);background:var(--surface)}
+.ov-num{font-size:20px;font-weight:500;color:#2b6cb0;margin-bottom:2px}
+.ov-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.ov-sub{font-size:12px;color:var(--muted);line-height:1.5}
+.flow-row{display:flex;align-items:center;gap:0;margin-bottom:16px;flex-wrap:wrap}
+.flow-box{padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500;text-align:center;flex:1;min-width:80px}
+.flow-arrow{font-size:16px;color:var(--muted);padding:0 4px;flex-shrink:0}
+.fb-navy{background:#E6F1FB;color:#185FA5;border:0.5px solid #B5D4F4}
+.fb-teal{background:#E1F5EE;color:#0F6E56;border:0.5px solid #9FE1CB}
+.fb-amber{background:#FAEEDA;color:#854F0B;border:0.5px solid #FAC775}
+.fb-purple{background:#EEEDFE;color:#3C3489;border:0.5px solid #AFA9EC}
+.compare-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.compare-tbl th{padding:8px 12px;text-align:left;font-weight:500;background:var(--surface2);font-size:12px;color:var(--muted);border-bottom:0.5px solid var(--border)}
+.compare-tbl td{padding:8px 12px;border-bottom:0.5px solid var(--border);vertical-align:top;line-height:1.5}
+.compare-tbl tr:last-child td{border-bottom:none}
+</style>
+
+<h2 class="sr-only">Oracle Fusion Cloud Payroll — Section 1: Payroll Foundation & Setup — Interactive Learning Module</h2>
+
+<div class="shell">
+
+<nav class="sidebar">
+  <div class="brand">
+    <div class="brand-tag">Learning Module</div>
+    <div class="brand-title">Section 1 — Payroll Foundation & Setup</div>
+  </div>
+  <div class="nav-list">
+    <button class="nav-item active" onclick="goTo(0)" id="nav0"><span class="nav-dot"></span>Overview</button>
+    <button class="nav-item" onclick="goTo(1)" id="nav1"><span class="nav-dot"></span>1.1 Legislative Data Group</button>
+    <button class="nav-item" onclick="goTo(2)" id="nav2"><span class="nav-dot"></span>1.2 Payroll Statutory Unit</button>
+    <button class="nav-item" onclick="goTo(3)" id="nav3"><span class="nav-dot"></span>1.3 Payroll Definition</button>
+    <button class="nav-item" onclick="goTo(4)" id="nav4"><span class="nav-dot"></span>1.4 Calendar & Time Periods</button>
+    <button class="nav-item" onclick="goTo(5)" id="nav5"><span class="nav-dot"></span>Key Takeaways</button>
+    <button class="nav-item" onclick="goTo(6)" id="nav6"><span class="nav-dot"></span>Knowledge Check</button>
+  </div>
+  <div class="nav-meta">
+    <div style="display:flex;justify-content:space-between">
+      <span id="prog-label">0 of 7 complete</span>
+      <span id="prog-pct" style="color:#2b6cb0;font-weight:500">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="section-label" id="top-label">Introduction</div>
+      <div class="section-title" id="top-title">Payroll Foundation & Setup</div>
+    </div>
+    <span class="badge" id="top-badge">Section 1 of 26</span>
+  </div>
+
+  <div class="content">
+
+    <!-- Panel 0: Overview -->
+    <div class="panel active" id="panel0">
+      <div class="alert alert-warn"><span class="alert-icon">⚠</span><div><strong>Oracle's central truth:</strong> Oracle enforces what is configured — it does not protect against misconfiguration. Payroll may calculate even when foundational setup is wrong, but compliance, tax, and reporting will eventually fail.</div></div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-blue">⬡</span>What this section covers</div>
+        <div class="prose"><p>The four foundational objects that every Oracle Fusion Payroll implementation must establish before any employee can be paid. These are created once, changed rarely, and silently constrain everything downstream.</p></div>
+      </div>
+
+      <div class="overview-grid">
+        <div class="ov-card" onclick="goTo(1)">
+          <div class="ov-num">1.1</div>
+          <div class="ov-name">Legislative Data Group</div>
+          <div class="ov-sub">Highest payroll-specific legal boundary. Determines tax engine, statutory rules, localizations.</div>
+        </div>
+        <div class="ov-card" onclick="goTo(2)">
+          <div class="ov-num">1.2</div>
+          <div class="ov-name">Payroll Statutory Unit</div>
+          <div class="ov-sub">Legal employer responsible for payroll compliance and regulatory filing identity.</div>
+        </div>
+        <div class="ov-card" onclick="goTo(3)">
+          <div class="ov-num">1.3</div>
+          <div class="ov-name">Payroll Definition</div>
+          <div class="ov-sub">Defines who gets paid together, how often, and under what cadence.</div>
+        </div>
+        <div class="ov-card" onclick="goTo(4)">
+          <div class="ov-num">1.4</div>
+          <div class="ov-name">Calendar & Time Periods</div>
+          <div class="ov-sub">Controls when payroll is allowed to exist. Drives processing, retro, and accounting.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-amber">↕</span>Hierarchy at a glance</div>
+        <div class="flow-row">
+          <div class="flow-box fb-navy">LDG<br><span style="font-weight:400;font-size:11px">Legal boundary</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box fb-teal">PSU / TRU<br><span style="font-weight:400;font-size:11px">Legal employer</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box fb-amber">Payroll Def<br><span style="font-weight:400;font-size:11px">Pay grouping</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box fb-purple">Calendar<br><span style="font-weight:400;font-size:11px">Time structure</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Payroll objects cannot cross LDG boundaries. Errors in PSU/TRU do not stop calculation — they surface as reporting and year-end failure. Missing or misconfigured calendars block payroll processing entirely.</div>
+      </div>
+    </div>
+
+    <!-- Panel 1: LDG -->
+    <div class="panel" id="panel1">
+      <div class="alert alert-danger"><span class="alert-icon">✕</span><div>"LDG is just a setup step — we'll deal with it later." You cannot. LDG errors are foundational and invasive.</div></div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-blue">⬡</span>What is the LDG?</div>
+        <div class="prose"><p>The Legislative Data Group is the highest payroll-specific legal boundary in Oracle Fusion HCM. It is country-specific and governs which tax engine runs, which statutory rules apply, which localizations are active, and which balance types and reports exist.</p></div>
+        <div class="nav-path">Setup and Maintenance → Workforce Deployment / Payroll → Legislative Data Groups</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-teal">✓</span>What LDG controls</div>
+          <ul class="list-items">
+            <li>Federal, state, and local tax logic</li>
+            <li>Statutory deductions and contributions</li>
+            <li>Year-end reporting structure</li>
+            <li>Regulatory validation during payroll</li>
+            <li>Which delivered reports are available</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-amber">!</span>Hard constraints</div>
+          <ul class="list-items">
+            <li>Payroll objects cannot cross LDGs</li>
+            <li>Retro and balances do not cross LDGs</li>
+            <li>Errors show as reporting failures, not calc failures</li>
+            <li>Hard to change post go-live</li>
+            <li>Multicountry = separate LDG per country</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-purple">?</span>Key discovery questions</div>
+        <ul class="list-items">
+          <li>Are all employees governed by the same country's labor and tax laws?</li>
+          <li>Do we anticipate paying employees in another country within the same Oracle instance?</li>
+          <li>Do payroll users understand they cannot fix LDG issues downstream?</li>
+          <li>Who owns requests for new LDGs if expansion occurs?</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-red">↔</span>Cross-module impacts</div>
+        <table class="compare-tbl">
+          <tr><th>Module</th><th>LDG Impact</th></tr>
+          <tr><td><span class="tag tag-blue">HR Core</span></td><td>People may exist across LDGs; payroll cannot</td></tr>
+          <tr><td><span class="tag tag-blue">Tax</span></td><td>Tax engine selection is LDG-driven</td></tr>
+          <tr><td><span class="tag tag-blue">Reporting</span></td><td>Year-end filings are LDG-scoped</td></tr>
+          <tr><td><span class="tag tag-blue">Security</span></td><td>Many clients align payroll security to LDG boundaries</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-amber">⬡</span>Configuration decisions</div>
+        <ul class="list-items">
+          <li>How many LDGs are required (single-country = usually one)</li>
+          <li>Whether any payroll operations must be segregated for regulatory reasons</li>
+          <li>How future expansion to new countries will be handled</li>
+          <li>Which payroll teams will operate within each LDG</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Panel 2: PSU -->
+    <div class="panel" id="panel2">
+      <div class="alert alert-warn"><span class="alert-icon">⚠</span><div>PSU/TRU errors do not stop payroll calculation. Failures appear later in year-end processing, regulatory extracts, and audit reconciliation.</div></div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-blue">⬡</span>What is the PSU?</div>
+        <div class="prose"><p>The Payroll Statutory Unit represents the legal employer responsible for payroll compliance. It determines: who is legally responsible for payroll reports, which entity's name appears on regulatory filings, and the path for W-2, W-2C, 941, and state returns.</p></div>
+        <div class="nav-path">Setup and Maintenance → Legal Structures / Payroll → Payroll Statutory Units</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-teal">⬡</span>PSU mental model</div>
+        <div class="takeaway" style="background:#E1F5EE;border-color:#9FE1CB;color:#04342C"><strong style="color:#085041">Think of the PSU as answering:</strong>"Who is legally responsible for what payroll reports get filed, where, and under whose name?"</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-purple">↔</span>Tax Reporting Units (TRUs)</div>
+        <div class="prose"><p>TRUs exist under a PSU and segment reporting by federal entity, state, and local jurisdiction. Employees are associated with TRUs via work location, address, and legal employer context.</p></div>
+        <div style="height:10px"></div>
+        <table class="compare-tbl">
+          <tr><th>Object</th><th>Purpose</th><th>Scope</th></tr>
+          <tr><td><strong>PSU</strong></td><td>Legal employer — owns filing identity</td><td>Federal-level</td></tr>
+          <tr><td><strong>TRU</strong></td><td>Segments tax reporting by jurisdiction</td><td>State / local</td></tr>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-amber">?</span>Key discovery questions</div>
+          <ul class="list-items">
+            <li>Which legal entity signs and submits payroll tax filings today?</li>
+            <li>Do employees work in multiple states requiring separate reporting?</li>
+            <li>Are retirees reported under the same PSU as actives?</li>
+            <li>Who owns ongoing TRU maintenance when jurisdictions change?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-teal">✓</span>Configuration decisions</div>
+          <ul class="list-items">
+            <li>One PSU per legal employer vs. shared PSUs</li>
+            <li>How many TRUs are required per PSU</li>
+            <li>How retirees vs. actives are reported</li>
+            <li>Whether reporting units align to legacy or are simplified</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-red">↔</span>Cross-module impacts</div>
+        <table class="compare-tbl">
+          <tr><th>Module</th><th>PSU / TRU Impact</th></tr>
+          <tr><td><span class="tag tag-blue">Legal Entities</span></td><td>PSU aligns to legal employer</td></tr>
+          <tr><td><span class="tag tag-blue">Tax & Compliance</span></td><td>TRU drives filing logic</td></tr>
+          <tr><td><span class="tag tag-blue">Finance / AP</span></td><td>Determines tax payment ownership</td></tr>
+          <tr><td><span class="tag tag-blue">Reporting</span></td><td>Regulator-specific reporting segmentation</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel 3: Payroll Definition -->
+    <div class="panel" id="panel3">
+      <div class="alert alert-warn"><span class="alert-icon">⚠</span><div>Oracle does not prevent over-fragmentation of payrolls. Every employee must have an active payroll relationship linked to a payroll definition — no relationship, no pay.</div></div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-blue">⬡</span>What is a Payroll Definition?</div>
+        <div class="prose"><p>A Payroll Definition defines the execution boundary for payroll processing — who is paid together, how often, and under what cadence. Every employee must have an active payroll relationship linked to a payroll definition.</p></div>
+        <div class="nav-path">Setup and Maintenance → Payroll → Payroll Definitions</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-teal">⬡</span>What Payroll Definitions control</div>
+        <ul class="list-items">
+          <li>Payroll frequency and cycle (weekly, bi-weekly, semi-monthly, monthly)</li>
+          <li>Pay period generation and structure</li>
+          <li>Retroactive behavior alignment</li>
+          <li>Off-cycle run eligibility</li>
+          <li>Reporting aggregation scope</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-amber">!</span>Frequency drives everything downstream</div>
+        <div style="margin-bottom:8px;font-size:13px;color:var(--muted)">Payroll frequency determines:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="chip">Period structure</span>
+          <span class="chip">Retro timing</span>
+          <span class="chip">Accrual impact</span>
+          <span class="chip">Accounting cadence</span>
+          <span class="chip">Year-end complexity</span>
+        </div>
+        <hr class="divider">
+        <div class="alert alert-danger" style="margin-bottom:0"><span class="alert-icon">✕</span><div>Employees cannot be paid if payroll relationship is missing OR if payroll definition is inactive.</div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-purple">?</span>Key discovery questions</div>
+          <ul class="list-items">
+            <li>Do different populations require separate pay schedules or just different elements?</li>
+            <li>Will retiree payroll be isolated operationally?</li>
+            <li>How often are off-cycle payrolls realistically run?</li>
+            <li>Who is authorized to initiate off-cycle runs?</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-teal">✓</span>Configuration decisions</div>
+          <ul class="list-items">
+            <li>Active vs. retiree separation</li>
+            <li>Bi-weekly vs. monthly (separate definitions)</li>
+            <li>How off-cycle payrolls will be used</li>
+            <li>Naming conventions for audit/troubleshooting</li>
+            <li>Whether future payroll types are anticipated</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-red">↔</span>Cross-module impacts</div>
+        <table class="compare-tbl">
+          <tr><th>Module</th><th>Impact</th></tr>
+          <tr><td><span class="tag tag-blue">Time & Labor</span></td><td>Timecard requirements often payroll-driven</td></tr>
+          <tr><td><span class="tag tag-blue">Benefits</span></td><td>Eligibility frequently payroll-based</td></tr>
+          <tr><td><span class="tag tag-blue">Accounting</span></td><td>Costing and posting follow payroll cadence</td></tr>
+          <tr><td><span class="tag tag-blue">Security</span></td><td>Payroll-level run permissions</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel 4: Calendar -->
+    <div class="panel" id="panel4">
+      <div class="alert alert-danger"><span class="alert-icon">✕</span><div>Misconfigured calendars produce blank reports, retro paid in the wrong period, and accounting misalignment. Oracle assumes calendars are authoritative.</div></div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-blue">⬡</span>What is the Payroll Calendar?</div>
+        <div class="prose"><p>Payroll calendars define when payroll is allowed to exist. They control period start/end dates, pay and check dates, and whether payroll can run at all. Period status directly controls payroll eligibility.</p></div>
+        <div class="nav-path">Setup and Maintenance → Payroll → Payroll Calendars</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-amber">!</span>Critical calendar rule</div>
+        <div class="takeaway" style="background:#FAEEDA;border-color:#FAC775;color:#412402"><strong style="color:#633806">Pay attention to date types:</strong>Many processes use the <strong>pay period end date</strong>, not the check date. Finance and payroll teams must agree on which date drives calculation, reporting, and accounting.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-teal">⬡</span>What calendars drive</div>
+          <ul class="list-items">
+            <li>Validity of payroll processing</li>
+            <li>Report parameter behavior</li>
+            <li>Retro placement in periods</li>
+            <li>Payment timing</li>
+            <li>Accounting period alignment</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-icon icon-purple">?</span>Discovery questions</div>
+          <ul class="list-items">
+            <li>Which date drives calculation vs. reporting vs. accounting?</li>
+            <li>How are bank holidays handled today?</li>
+            <li>Who is allowed to reopen or adjust closed periods?</li>
+            <li>Do Finance and Payroll agree on date ownership?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-amber">!</span>Configuration decisions</div>
+        <ul class="list-items">
+          <li>Alignment of period end vs. check date</li>
+          <li>Handling of bank holidays</li>
+          <li>Use of payment date overrides</li>
+          <li>Controls for opening and closing periods</li>
+          <li>Calendar segregation by payroll type</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-red">↔</span>Cross-module impacts</div>
+        <table class="compare-tbl">
+          <tr><th>Module</th><th>Calendar Impact</th></tr>
+          <tr><td><span class="tag tag-blue">Finance / GL</span></td><td>Accounting date derivation</td></tr>
+          <tr><td><span class="tag tag-blue">Treasury / Banking</span></td><td>ACH and check release timing</td></tr>
+          <tr><td><span class="tag tag-blue">Reporting</span></td><td>Period-driven extracts</td></tr>
+          <tr><td><span class="tag tag-blue">Retro Payroll</span></td><td>Period accuracy is critical</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel 5: Key Takeaways -->
+    <div class="panel" id="panel5">
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-blue">⬡</span>Mental model for system users</div>
+        <div class="mental-model">
+          <div class="mm-card">
+            <div class="mm-label">LDG</div>
+            <div class="mm-value">Which country's laws apply</div>
+          </div>
+          <div class="mm-card">
+            <div class="mm-label">PSU / TRU</div>
+            <div class="mm-value">Who is legally responsible</div>
+          </div>
+          <div class="mm-card">
+            <div class="mm-label">Payroll Definition</div>
+            <div class="mm-value">Who gets paid together and how often</div>
+          </div>
+          <div class="mm-card">
+            <div class="mm-label">Calendar</div>
+            <div class="mm-value">When payroll is allowed to exist</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-red">!</span>What Oracle will and won't do</div>
+        <table class="compare-tbl">
+          <tr><th>Oracle WILL</th><th>Oracle WON'T</th></tr>
+          <tr>
+            <td><span class="tag tag-green">✓</span> Calculate payroll even with structural errors</td>
+            <td><span class="tag tag-red">✕</span> Warn when foundation creates compliance failure</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">✓</span> Run year-end archive even if balances are wrong</td>
+            <td><span class="tag tag-red">✕</span> Stop payroll because taxes are misconfigured</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">✓</span> Accept loaded balances as authoritative</td>
+            <td><span class="tag tag-red">✕</span> Validate that W-2 box mapping reflects actual law</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">✓</span> Allow QuickPay without forcing rollback</td>
+            <td><span class="tag tag-red">✕</span> Prevent rollback locks from occurring silently</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="card-icon icon-amber">⚑</span>Silent failure patterns in foundation</div>
+        <ul class="list-items">
+          <li>Wrong address → incorrect state/local tax with no validation</li>
+          <li>Missing payment method → prepayment failure without warning</li>
+          <li>PSU/TRU mismatch → year-end extract failure discovered in Q1</li>
+          <li>Misconfigured calendar → blank reports or retro in wrong period</li>
+          <li>Missing payroll relationship → employee not paid (no error, just absence)</li>
+        </ul>
+      </div>
+
+      <div class="takeaway">
+        <strong>Ultimate takeaway — Section 1</strong>
+        Payroll success in Oracle is determined long before Calculate Payroll is clicked. Foundational setup decisions are operationally silent — but legally loud. Oracle Payroll does exactly what you design: nothing more, nothing less.
+      </div>
+    </div>
+
+    <!-- Panel 6: Quiz -->
+    <div class="panel" id="panel6">
+      <div class="score-bar" id="score-bar" style="display:none">
+        <div class="score-num" id="score-num">0</div>
+        <div class="score-den">&nbsp;/ 5</div>
+        <div class="score-label">questions correct</div>
+      </div>
+
+      <div id="quiz-container"></div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn" id="btn-back" onclick="navigate(-1)" disabled>← Back</button>
+    <span style="font-size:12px;color:var(--muted)" id="page-indicator">1 / 7</span>
+    <button class="btn btn-primary" id="btn-next" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+</div>
+
+<script>
+const panels=[0,1,2,3,4,5,6];
+const labels=["Introduction","1.1","1.2","1.3","1.4","Takeaways","Knowledge Check"];
+const titles=["Payroll Foundation & Setup","Legislative Data Group (LDG)","Payroll Statutory Unit (PSU)","Payroll Definition","Payroll Calendar & Time Periods","Key Takeaways & Mental Models","Knowledge Check"];
+const badges=["Section 1 of 26","Foundation > LDG","Foundation > PSU","Foundation > Payroll Def","Foundation > Calendar","Section Summary","Self-Assessment"];
+let cur=0;
+const visited=new Set([0]);
+const quizzes=[
+  {q:"What is the primary purpose of the Legislative Data Group (LDG) in Oracle Fusion Payroll?",opts:["It defines who gets paid together and how often","It is the highest payroll-specific legal boundary that determines tax engine and statutory rules","It controls when payroll is allowed to be processed","It determines the legal employer name on regulatory filings"],ans:1,exp:"The LDG is the highest payroll-specific legal boundary. It determines the tax engine used, which statutory rules apply, which localizations are active, and which delivered reports exist."},
+  {q:"PSU/TRU configuration errors in Oracle Fusion will:",opts:["Stop the payroll calculation immediately","Trigger an Oracle warning message during Calculate Payroll","Surface later as year-end processing failures and regulatory extract errors","Prevent employees from being assigned to payroll definitions"],ans:2,exp:"PSU/TRU errors do not stop payroll calculation. Failures appear later in year-end processing, regulatory extracts, and audit reconciliation — making them especially dangerous."},
+  {q:"An employee with no active payroll relationship linked to a payroll definition will:",opts:["Receive a default payment using the most recent payroll definition","Not be paid — Oracle will silently exclude them with no error message","Trigger a payroll warning that stops the flow","Default to the system's fallback payroll definition"],ans:1,exp:"Employees cannot be paid if the payroll relationship is missing or if the payroll definition is inactive. Oracle does not generate an error — the employee is simply excluded."},
+  {q:"Which statement about Payroll Calendar configuration is correct?",opts:["The check date is always used to drive payroll calculation logic","Many Oracle processes use the pay period end date, not the check date","Calendar errors always generate explicit error messages in Oracle","Calendars can be freely modified mid-period without impact"],ans:1,exp:"A critical rule: many Oracle processes use the pay period end date, not the check date. Misconfigured calendars produce blank reports, retro paid in the wrong period, and accounting misalignment."},
+  {q:"What is Oracle's behavior when foundational payroll setup contains structural errors?",opts:["Oracle stops processing and displays a configuration error","Oracle calculates payroll correctly regardless of setup","Oracle may still run and pay employees, but compliance, reporting, and audit will eventually fail","Oracle rolls back to the last valid configuration automatically"],ans:2,exp:"Oracle enforces what is configured — it does not protect against misconfiguration. Payroll may still run and employees may still get paid, but compliance, reporting, and audit will eventually fail. This is Oracle's 'silent failure' pattern."}
+];
+let qAnswered=new Array(5).fill(false);
+let qScore=0;
+
+function renderQuiz(){
+  const c=document.getElementById('quiz-container');
+  c.innerHTML='';
+  quizzes.forEach((q,i)=>{
+    const d=document.createElement('div');
+    d.className='card';
+    d.id='quiz-'+i;
+    let opts=q.opts.map((o,j)=>`<button class="quiz-option" id="qo${i}_${j}" onclick="answer(${i},${j})">${o}</button>`).join('');
+    d.innerHTML=`<div class="quiz-q">Q${i+1}: ${q.q}</div>${opts}<div class="quiz-result" id="qr${i}" style="display:none"></div>`;
+    c.appendChild(d);
+  });
+}
+
+function answer(qi,oi){
+  if(qAnswered[qi])return;
+  qAnswered[qi]=true;
+  const q=quizzes[qi];
+  for(let j=0;j<q.opts.length;j++){
+    const btn=document.getElementById(`qo${qi}_${j}`);
+    btn.disabled=true;
+    if(j===q.ans)btn.classList.add('correct');
+    else if(j===oi)btn.classList.add('wrong');
+  }
+  const res=document.getElementById('qr'+qi);
+  const correct=oi===q.ans;
+  if(correct)qScore++;
+  res.style.display='block';
+  res.className='quiz-result '+(correct?'alert alert-success':'alert alert-danger');
+  res.innerHTML=(correct?'<strong>Correct.</strong> ':'<strong>Incorrect.</strong> ')+q.exp;
+  updateScore();
+}
+
+function updateScore(){
+  const done=qAnswered.filter(Boolean).length;
+  if(done>0){
+    document.getElementById('score-bar').style.display='flex';
+    document.getElementById('score-num').textContent=qScore;
+  }
+}
+
+function goTo(n){
+  document.getElementById('panel'+cur).classList.remove('active');
+  document.getElementById('nav'+cur).classList.remove('active');
+  visited.add(n);
+  cur=n;
+  document.getElementById('panel'+cur).classList.add('active');
+  const nav=document.getElementById('nav'+cur);
+  nav.classList.add('active');
+  visited.forEach(v=>{ if(v!==cur)document.getElementById('nav'+v).classList.add('done'); });
+  document.getElementById('top-label').textContent=labels[cur];
+  document.getElementById('top-title').textContent=titles[cur];
+  document.getElementById('top-badge').textContent=badges[cur];
+  document.getElementById('btn-back').disabled=cur===0;
+  document.getElementById('btn-next').disabled=cur===6;
+  document.getElementById('btn-next').textContent=cur===5?'Take Quiz →':'Next →';
+  document.getElementById('page-indicator').textContent=(cur+1)+' / 7';
+  const pct=Math.round(visited.size/7*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-label').textContent=visited.size+' of 7 complete';
+  document.querySelector('.content').scrollTop=0;
+}
+
+function navigate(dir){goTo(Math.max(0,Math.min(6,cur+dir)));}
+
+renderQuiz();
+</script>
