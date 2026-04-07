@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Section Learning Page | Oracle Fusion Payroll</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" aria-label="Section navigation">
+        <div class="brand">
+          <div class="brand-mark">OF</div>
+          <div>
+            <p class="brand-name">Oracle Fusion Payroll</p>
+            <p class="brand-subtitle">Section Navigator</p>
+          </div>
+        </div>
+
+        <a href="index.html" class="module-btn nav-btn back-home">← Back to learning hub</a>
+
+        <nav>
+          <ul class="nav-list" id="sectionNav"></ul>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <p class="breadcrumb" id="breadcrumb">Documentation &gt; Section Page</p>
+
+        <header class="hero">
+          <p class="kicker" id="sectionKicker">Section</p>
+          <h1 id="sectionTitle">Loading...</h1>
+          <p id="sectionSummary"></p>
+        </header>
+
+        <section class="module-card standalone-module">
+          <div class="module-content section-content" id="sectionContent"></div>
+        </section>
+
+        <div class="section-pager" id="sectionPager"></div>
+      </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="module.js"></script>
+  </body>
+</html>
