@@ -5,6 +5,7 @@
   --navy-700: #1f4678;
   --blue-400: #6bb4ff;
   --blue-300: #98ceff;
+  --color-accent-amber: #ffbf47;
   --text-primary: #eaf4ff;
   --text-secondary: #bdd8f7;
   --card-bg: rgba(21, 54, 95, 0.55);
@@ -144,6 +145,7 @@ h2,
   display: block;
   padding: 0.65rem 0.75rem;
   border-radius: 0.6rem;
+  border-left: 3px solid transparent;
   color: var(--text-secondary);
   text-decoration: none;
   transition: all 0.2s ease;
@@ -155,9 +157,20 @@ h2,
   background: rgba(107, 180, 255, 0.16);
 }
 
+.nav-link.active {
+  border-left-color: var(--color-accent-amber);
+}
+
 .content {
   padding: 2rem clamp(1rem, 4vw, 3rem) 4rem;
   max-width: 1000px;
+}
+
+.breadcrumb {
+  margin: 0 0 0.8rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
 }
 
 .hero {
