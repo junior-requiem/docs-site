@@ -11,6 +11,8 @@ const sectionContent = document.querySelector('#sectionContent');
 const sectionPager = document.querySelector('#sectionPager');
 const transitionTarget = document.querySelector('.content');
 const transitionDurationMs = 240;
+const FOUNDATION_MODULE_ID = 'foundation-setup';
+const FOUNDATION_MODULE_FILE = 'oracle_payroll_section1_learning_module.html';
 
 const params = new URLSearchParams(window.location.search);
 const selectedId = params.get('id') || modules[0].id;
@@ -69,12 +71,54 @@ const setupSectionTransitions = () => {
   });
 };
 
+const buildCompletionButton = (isComplete) => `
+  <div class="module-actions">
+    <button class="module-btn ${isComplete ? 'is-complete' : ''}" id="completeSectionBtn">
+      ${isComplete ? 'Completed ✓' : 'Mark section completed'}
+    </button>
+  </div>
+`;
+
+const bindCompletionToggle = () => {
+  const completeSectionBtn = document.querySelector('#completeSectionBtn');
+  if (!completeSectionBtn) return;
+
+  completeSectionBtn.addEventListener('click', () => {
+    if (completedModules.has(activeModule.id)) {
+      completedModules.delete(activeModule.id);
+      completeSectionBtn.textContent = 'Mark section completed';
+      completeSectionBtn.classList.remove('is-complete');
+    } else {
+      completedModules.add(activeModule.id);
+      completeSectionBtn.textContent = 'Completed ✓';
+      completeSectionBtn.classList.add('is-complete');
+    }
+    saveProgress();
+  });
+};
+
 const renderSection = () => {
   const isComplete = completedModules.has(activeModule.id);
   breadcrumb.textContent = `Documentation > ${activeModule.title}`;
   sectionKicker.textContent = `Section ${activeModule.sections}`;
   sectionTitle.textContent = activeModule.title;
   sectionSummary.textContent = activeModule.summary;
+
+  if (activeModule.id === FOUNDATION_MODULE_ID) {
+    sectionContent.innerHTML = `
+      <div class="embedded-module-shell">
+        <iframe
+          title="Oracle Fusion Payroll Foundation & Setup Learning Module"
+          src="${FOUNDATION_MODULE_FILE}"
+          class="embedded-module-frame"
+          loading="lazy"
+        ></iframe>
+      </div>
+      ${buildCompletionButton(isComplete)}
+    `;
+    bindCompletionToggle();
+    return;
+  }
 
   sectionContent.innerHTML = `
     <h3>What you'll learn</h3>
@@ -91,26 +135,10 @@ const renderSection = () => {
         .join('')}
     </ul>
 
-    <div class="module-actions">
-      <button class="module-btn ${isComplete ? 'is-complete' : ''}" id="completeSectionBtn">
-        ${isComplete ? 'Completed ✓' : 'Mark section completed'}
-      </button>
-    </div>
+    ${buildCompletionButton(isComplete)}
   `;
 
-  const completeSectionBtn = document.querySelector('#completeSectionBtn');
-  completeSectionBtn.addEventListener('click', () => {
-    if (completedModules.has(activeModule.id)) {
-      completedModules.delete(activeModule.id);
-      completeSectionBtn.textContent = 'Mark section completed';
-      completeSectionBtn.classList.remove('is-complete');
-    } else {
-      completedModules.add(activeModule.id);
-      completeSectionBtn.textContent = 'Completed ✓';
-      completeSectionBtn.classList.add('is-complete');
-    }
-    saveProgress();
-  });
+  bindCompletionToggle();
 };
 
 const renderPager = () => {
