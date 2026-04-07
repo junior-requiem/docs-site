@@ -9,6 +9,8 @@ const sectionTitle = document.querySelector('#sectionTitle');
 const sectionSummary = document.querySelector('#sectionSummary');
 const sectionContent = document.querySelector('#sectionContent');
 const sectionPager = document.querySelector('#sectionPager');
+const transitionTarget = document.querySelector('.content');
+const transitionDurationMs = 240;
 
 const params = new URLSearchParams(window.location.search);
 const selectedId = params.get('id') || modules[0].id;
@@ -33,6 +35,38 @@ const renderNav = () => {
     `,
     )
     .join('');
+};
+
+const setupSectionTransitions = () => {
+  if (!transitionTarget) return;
+
+  requestAnimationFrame(() => {
+    transitionTarget.classList.add('page-transition-enter-active');
+    transitionTarget.classList.remove('page-transition-enter');
+  });
+
+  transitionTarget.addEventListener(
+    'transitionend',
+    () => {
+      transitionTarget.classList.remove('page-transition-enter-active');
+    },
+    { once: true },
+  );
+
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="module.html?id="]');
+    if (!link) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (event.button !== 0) return;
+    if (link.target && link.target !== '_self') return;
+
+    event.preventDefault();
+    document.body.classList.add('is-transitioning');
+
+    window.setTimeout(() => {
+      window.location.href = link.href;
+    }, transitionDurationMs);
+  });
 };
 
 const renderSection = () => {
@@ -92,3 +126,4 @@ const renderPager = () => {
 renderNav();
 renderSection();
 renderPager();
+setupSectionTransitions();
