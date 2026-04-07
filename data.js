@@ -2,8 +2,8 @@ window.learningModules = [
   {
     id: 'foundation-setup',
     sections: '1, 24',
-    title: 'Foundation & Setup',
-    summary: 'Establish enterprise structures, payroll definitions, and baseline controls.',
+    title: 'Payroll Foundations',
+    summary: 'Establish enterprise structures, payroll definitions, and baseline controls for Payroll Foundations.',
     topics: ['Enterprise and legal employer setup', 'Payroll definitions and calendar design', 'Initial implementation checklist'],
     objectives: ['Map organization model to payroll model', 'Prepare prerequisite configuration artifacts'],
   },
