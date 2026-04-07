@@ -97,7 +97,57 @@ const bindCompletionToggle = () => {
   });
 };
 
-const renderSection = () => {
+const injectHtmlWithScripts = (target, html) => {
+  const fragment = document.createRange().createContextualFragment(html);
+  const scripts = [...fragment.querySelectorAll('script')];
+  scripts.forEach((script) => script.remove());
+
+  target.innerHTML = '';
+  target.appendChild(fragment);
+
+  scripts.forEach((script) => {
+    const nextScript = document.createElement('script');
+    if (script.src) {
+      nextScript.src = script.src;
+      nextScript.async = false;
+    }
+    nextScript.textContent = script.textContent;
+    target.appendChild(nextScript);
+  });
+};
+
+const renderFoundationModule = async (isComplete) => {
+  sectionContent.innerHTML = '<p class="module-loading">Loading Section 1 learning module…</p>';
+
+  try {
+    const response = await fetch(FOUNDATION_MODULE_FILE, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Unable to load module content: ${response.status}`);
+
+    const foundationHtml = await response.text();
+    sectionContent.innerHTML = `
+      <div class="foundation-module-inline" id="foundationModuleInline"></div>
+      ${buildCompletionButton(isComplete)}
+    `;
+
+    const foundationTarget = document.querySelector('#foundationModuleInline');
+    if (foundationTarget) {
+      injectHtmlWithScripts(foundationTarget, foundationHtml);
+    }
+
+    bindCompletionToggle();
+  } catch (error) {
+    sectionContent.innerHTML = `
+      <div class="module-error" role="alert">
+        <strong>Unable to load Section 1 interactive content.</strong>
+        <p>${error.message}</p>
+      </div>
+      ${buildCompletionButton(isComplete)}
+    `;
+    bindCompletionToggle();
+  }
+};
+
+const renderSection = async () => {
   const isComplete = completedModules.has(activeModule.id);
   breadcrumb.textContent = `Documentation > ${activeModule.title}`;
   sectionKicker.textContent = `Section ${activeModule.sections}`;
@@ -105,18 +155,7 @@ const renderSection = () => {
   sectionSummary.textContent = activeModule.summary;
 
   if (activeModule.id === FOUNDATION_MODULE_ID) {
-    sectionContent.innerHTML = `
-      <div class="embedded-module-shell">
-        <iframe
-          title="Oracle Fusion Payroll Foundation & Setup Learning Module"
-          src="${FOUNDATION_MODULE_FILE}"
-          class="embedded-module-frame"
-          loading="lazy"
-        ></iframe>
-      </div>
-      ${buildCompletionButton(isComplete)}
-    `;
-    bindCompletionToggle();
+    await renderFoundationModule(isComplete);
     return;
   }
 

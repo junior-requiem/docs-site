@@ -367,18 +367,22 @@ h1,
 }
 
 
-.embedded-module-shell {
-  border: 1px solid var(--card-border-light);
-  border-radius: 0.8rem;
-  overflow: hidden;
-  background: #fff;
+.foundation-module-inline {
+  color: var(--card-text-primary);
 }
 
-.embedded-module-frame {
-  width: 100%;
-  min-height: 860px;
-  border: 0;
-  display: block;
+.module-loading,
+.module-error {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid #d3e0f2;
+  background: #f4f8ff;
+  color: var(--card-text-primary);
+}
+
+.module-error p {
+  margin: 0.4rem 0 0;
 }
 
 .objective-checkbox {
