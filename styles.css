@@ -16,23 +16,13 @@
   --card-border-light: #d3e0f2;
   --card-text-primary: var(--navy-900);
   --card-text-secondary: var(--navy-700);
-  --btn-primary-size: 1rem;
-  --btn-primary-weight: 700;
-  --btn-primary-py: 0.78rem;
-  --btn-primary-px: 1.4rem;
-  --btn-secondary-size: 0.88rem;
-  --btn-secondary-weight: 500;
-  --btn-secondary-py: 0.58rem;
-  --btn-secondary-px: 1rem;
-  --btn-primary-bg: var(--blue-400);
-  --btn-primary-bg-hover: #86c4ff;
-  --btn-primary-text: var(--navy-900);
-  --btn-secondary-border: rgba(31, 70, 120, 0.4);
-  --btn-secondary-border-hover: rgba(31, 70, 120, 0.62);
-  --btn-secondary-text: rgba(13, 35, 64, 0.75);
-  --btn-secondary-text-hover: var(--navy-900);
-  --btn-focus-ring: rgba(107, 180, 255, 0.45);
+  --color-btn-secondary-border: var(--card-text-secondary);
+  --color-btn-secondary-text: var(--card-text-primary);
+  --color-btn-secondary-hover-bg: rgba(13, 35, 64, 0.08);
+  --color-btn-secondary-hover-border: var(--card-text-primary);
+  --color-btn-secondary-hover-text: var(--card-text-primary);
 }
+
 
 * {
   box-sizing: border-box;
@@ -258,19 +248,15 @@ h1,
 }
 
 .btn-secondary {
-  padding: var(--btn-secondary-py) var(--btn-secondary-px);
-  font-size: var(--btn-secondary-size);
-  font-weight: var(--btn-secondary-weight);
-  border: 1px solid var(--btn-secondary-border);
-  color: var(--btn-secondary-text);
-  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid var(--color-btn-secondary-border);
+  color: var(--color-btn-secondary-text);
 }
 
 .btn-secondary:hover,
 .btn-secondary:focus-visible {
-  color: var(--btn-secondary-text-hover);
-  border-color: var(--btn-secondary-border-hover);
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--color-btn-secondary-hover-bg);
+  border-color: var(--color-btn-secondary-hover-border);
+  color: var(--color-btn-secondary-hover-text);
 }
 
 .doc-section {
