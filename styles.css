@@ -366,6 +366,21 @@ h1,
   overflow: visible;
 }
 
+
+.embedded-module-shell {
+  border: 1px solid var(--card-border-light);
+  border-radius: 0.8rem;
+  overflow: hidden;
+  background: #fff;
+}
+
+.embedded-module-frame {
+  width: 100%;
+  min-height: 860px;
+  border: 0;
+  display: block;
+}
+
 .objective-checkbox {
   margin-right: 0.5rem;
 }
