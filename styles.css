@@ -90,7 +90,38 @@ h2,
   margin: 0;
   padding: 0;
   display: grid;
+  gap: 0.8rem;
+}
+
+.nav-group {
+  list-style: none;
+}
+
+.nav-group-label {
+  margin: 0 0 0.3rem;
+  padding: 0 0.75rem;
+  color: rgba(189, 216, 247, 0.7);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-group-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
   gap: 0.35rem;
+  max-height: 50rem;
+  opacity: 1;
+  overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.25s ease;
+}
+
+.nav-group.is-collapsed .nav-group-items {
+  max-height: 0;
+  opacity: 0;
 }
 
 .nav-link {
@@ -230,6 +261,11 @@ h2 {
 
   .nav-list {
     grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .nav-group-label {
+    padding-inline: 0.35rem;
   }
 
   .content {
