@@ -26,9 +26,16 @@
 .pf-content{flex:1;overflow-y:auto;padding:20px}
 .panel{display:block;opacity:0;transform:translateY(28px);transition:opacity .45s ease,transform .45s ease;margin-bottom:18px}
 .panel.is-visible{opacity:1;transform:translateY(0)}
-.panel.is-locked{opacity:.38;pointer-events:none;filter:grayscale(.08)}
+.panel.is-locked{opacity:.68;pointer-events:none;filter:grayscale(.03)}
 .panel.is-locked::after{content:'Complete the current section to unlock this content';display:block;margin-top:10px;font-size:12px;color:var(--muted);padding:8px 12px;border:0.5px dashed var(--border);border-radius:8px;background:var(--surface2)}
+.panel-section-title{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:0.5px solid var(--border);border-radius:10px;background:var(--surface2);margin-bottom:12px}
+.panel-section-title .section-name{font-size:13px;font-weight:500;color:var(--text)}
+.panel-section-title .section-meta{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .section-verify{display:flex;justify-content:flex-end;margin-top:12px}
+.section-verify-wrap{margin-top:12px}
+.next-section-hint{margin-top:8px;padding:10px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface2)}
+.next-section-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.next-section-title{font-size:13px;font-weight:500;color:var(--text);margin-top:2px}
 .section-verify .btn{pointer-events:auto}
 .section-verify .btn.verified{background:#EAF3DE;border-color:#C0DD97;color:#173404}
 .card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px}
@@ -629,12 +636,25 @@ function verifySection(idx){
 function setupScrollExperience(){
   panels.forEach((id,idx)=>{
     const panel=document.getElementById('panel'+id);
+    const panelTitle=document.createElement('div');
+    panelTitle.className='panel-section-title';
+    panelTitle.innerHTML=`<span class="section-name">${titles[idx]}</span><span class="section-meta">${badges[idx]}</span>`;
+    panel.insertBefore(panelTitle,panel.firstChild);
+
     panel.classList.remove('active');
     if(idx>0)panel.classList.add('is-locked');
     if(idx<6){
       const verifyWrap=document.createElement('div');
-      verifyWrap.className='section-verify';
-      verifyWrap.innerHTML=`<button class="btn" id="verify${idx}" onclick="verifySection(${idx})">Mark section viewed</button>`;
+      verifyWrap.className='section-verify-wrap';
+      const nextTitle=titles[idx+1]||'Knowledge Check';
+      const nextBadge=badges[idx+1]||'Next Section';
+      verifyWrap.innerHTML=`
+        <div class="section-verify"><button class="btn" id="verify${idx}" onclick="verifySection(${idx})">Mark section viewed</button></div>
+        <div class="next-section-hint">
+          <div class="next-section-label">Up next</div>
+          <div class="next-section-title">${nextTitle} · ${nextBadge}</div>
+        </div>
+      `;
       panel.appendChild(verifyWrap);
     }
   });
