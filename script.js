@@ -10,6 +10,7 @@ const completedCount = document.querySelector('#completedCount');
 const totalCount = document.querySelector('#totalCount');
 const progressFill = document.querySelector('#progressFill');
 const progressBar = document.querySelector('#progressBar');
+const transitionDurationMs = 240;
 
 const saveProgress = () => {
   localStorage.setItem(storageKey, JSON.stringify([...completedModules]));
@@ -118,11 +119,29 @@ const applySearch = () => {
   noResults.hidden = visibleCount > 0;
 };
 
+const setupIndexTransitions = () => {
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="module.html?id="]');
+    if (!link) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (event.button !== 0) return;
+    if (link.target && link.target !== '_self') return;
+
+    event.preventDefault();
+    document.body.classList.add('is-transitioning');
+
+    window.setTimeout(() => {
+      window.location.href = link.href;
+    }, transitionDurationMs);
+  });
+};
+
 createNav();
 createModules();
 updateProgressUI();
 handleCompletion();
 applySearch();
+setupIndexTransitions();
 
 if (docSearch) {
   docSearch.addEventListener('input', applySearch);
