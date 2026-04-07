@@ -39,7 +39,6 @@ const renderNav = () => {
 
 const setupSectionTransitions = () => {
   if (!transitionTarget) return;
-  transitionTarget.classList.add('page-transition-target', 'page-transition-enter');
 
   requestAnimationFrame(() => {
     transitionTarget.classList.add('page-transition-enter-active');
