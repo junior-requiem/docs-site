@@ -17,7 +17,17 @@ const updateActiveLink = () => {
   links.forEach((link) => {
     link.classList.toggle('active', link.getAttribute('href') === `#${currentId}`);
   });
+
+  syncBreadcrumbWithActiveLink();
 };
+
+links.forEach((link) => {
+  link.addEventListener('click', () => {
+    links.forEach((navLink) => navLink.classList.remove('active'));
+    link.classList.add('active');
+    syncBreadcrumbWithActiveLink();
+  });
+});
 
 updateActiveLink();
 window.addEventListener('scroll', updateActiveLink);
