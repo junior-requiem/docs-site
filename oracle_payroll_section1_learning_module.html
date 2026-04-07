@@ -24,8 +24,13 @@
 .section-title{font-size:17px;font-weight:500;color:var(--text);margin-top:2px}
 .pf-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;background:#e7f2ff;color:#114985}
 .pf-content{flex:1;overflow-y:auto;padding:20px}
-.panel{display:none}
-.panel.active{display:block}
+.panel{display:block;opacity:0;transform:translateY(28px);transition:opacity .45s ease,transform .45s ease;margin-bottom:18px}
+.panel.is-visible{opacity:1;transform:translateY(0)}
+.panel.is-locked{opacity:.38;pointer-events:none;filter:grayscale(.08)}
+.panel.is-locked::after{content:'Complete the current section to unlock this content';display:block;margin-top:10px;font-size:12px;color:var(--muted);padding:8px 12px;border:0.5px dashed var(--border);border-radius:8px;background:var(--surface2)}
+.section-verify{display:flex;justify-content:flex-end;margin-top:12px}
+.section-verify .btn{pointer-events:auto}
+.section-verify .btn.verified{background:#EAF3DE;border-color:#C0DD97;color:#173404}
 .card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px}
 .card-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .card-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
@@ -96,6 +101,11 @@
 .compare-tbl th{padding:8px 12px;text-align:left;font-weight:500;background:var(--surface2);font-size:12px;color:var(--muted);border-bottom:0.5px solid var(--border)}
 .compare-tbl td{padding:8px 12px;border-bottom:0.5px solid var(--border);vertical-align:top;line-height:1.5}
 .compare-tbl tr:last-child td{border-bottom:none}
+@media (max-width:980px){
+  .shell{flex-direction:column;min-height:unset}
+  .pf-sidebar{width:100%;min-width:0;max-height:220px}
+  .pf-content{padding:14px}
+}
 </style>
 
 <h2 class="sr-only">Oracle Fusion Cloud Payroll — Section 1: Payroll Foundation & Setup — Interactive Learning Module</h2>
@@ -513,10 +523,8 @@
 
   </div>
 
-  <div class="bottom-nav">
-    <button class="btn" id="btn-back" onclick="navigate(-1)" disabled>← Back</button>
-    <span style="font-size:12px;color:var(--muted)" id="page-indicator">1 / 7</span>
-    <button class="btn btn-primary" id="btn-next" onclick="navigate(1)">Next →</button>
+  <div class="bottom-nav" style="padding:0 20px 16px">
+    <span style="font-size:12px;color:var(--muted)">Scroll to continue. Each section unlocks after you verify completion.</span>
   </div>
 </div>
 </div></div>
@@ -527,7 +535,9 @@ const labels=["Introduction","1.1","1.2","1.3","1.4","Takeaways","Knowledge Chec
 const titles=["Payroll Foundation & Setup","Legislative Data Group (LDG)","Payroll Statutory Unit (PSU)","Payroll Definition","Payroll Calendar & Time Periods","Key Takeaways & Mental Models","Knowledge Check"];
 const badges=["Section 1 of 26","Foundation > LDG","Foundation > PSU","Foundation > Payroll Def","Foundation > Calendar","Section Summary","Self-Assessment"];
 let cur=0;
-const visited=new Set([0]);
+const viewed=new Set([0]);
+const verified=new Set();
+let unlockedUntil=0;
 const quizzes=[
   {q:"What is the primary purpose of the Legislative Data Group (LDG) in Oracle Fusion Payroll?",opts:["It defines who gets paid together and how often","It is the highest payroll-specific legal boundary that determines tax engine and statutory rules","It controls when payroll is allowed to be processed","It determines the legal employer name on regulatory filings"],ans:1,exp:"The LDG is the highest payroll-specific legal boundary. It determines the tax engine used, which statutory rules apply, which localizations are active, and which delivered reports exist."},
   {q:"PSU/TRU configuration errors in Oracle Fusion will:",opts:["Stop the payroll calculation immediately","Trigger an Oracle warning message during Calculate Payroll","Surface later as year-end processing failures and regulatory extract errors","Prevent employees from being assigned to payroll definitions"],ans:2,exp:"PSU/TRU errors do not stop payroll calculation. Failures appear later in year-end processing, regulatory extracts, and audit reconciliation — making them especially dangerous."},
@@ -579,29 +589,77 @@ function updateScore(){
 }
 
 function goTo(n){
-  document.getElementById('panel'+cur).classList.remove('active');
+  if(n>unlockedUntil)return;
   document.getElementById('nav'+cur).classList.remove('active');
-  visited.add(n);
+  viewed.add(n);
   cur=n;
-  document.getElementById('panel'+cur).classList.add('active');
+  document.getElementById('panel'+cur).scrollIntoView({behavior:'smooth',block:'start'});
   const nav=document.getElementById('nav'+cur);
   nav.classList.add('active');
-  visited.forEach(v=>{ if(v!==cur)document.getElementById('nav'+v).classList.add('done'); });
+  verified.forEach(v=>{ if(v!==cur)document.getElementById('nav'+v).classList.add('done'); });
   document.getElementById('top-label').textContent=labels[cur];
   document.getElementById('top-title').textContent=titles[cur];
   document.getElementById('top-badge').textContent=badges[cur];
-  document.getElementById('btn-back').disabled=cur===0;
-  document.getElementById('btn-next').disabled=cur===6;
-  document.getElementById('btn-next').textContent=cur===5?'Take Quiz →':'Next →';
-  document.getElementById('page-indicator').textContent=(cur+1)+' / 7';
-  const pct=Math.round(visited.size/7*100);
+  const pct=Math.round(verified.size/7*100);
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('prog-pct').textContent=pct+'%';
-  document.getElementById('prog-label').textContent=visited.size+' of 7 complete';
-  document.querySelector('.pf-content').scrollTop=0;
+  document.getElementById('prog-label').textContent=verified.size+' of 7 complete';
 }
 
-function navigate(dir){goTo(Math.max(0,Math.min(6,cur+dir)));}
+function verifySection(idx){
+  verified.add(idx);
+  document.getElementById('nav'+idx).classList.add('done');
+  const btn=document.getElementById('verify'+idx);
+  if(btn){
+    btn.textContent='Verified ✓';
+    btn.classList.add('verified');
+    btn.disabled=true;
+  }
+  if(idx===unlockedUntil && unlockedUntil<6){
+    unlockedUntil+=1;
+    const nextPanel=document.getElementById('panel'+unlockedUntil);
+    nextPanel.classList.remove('is-locked');
+  }
+  const pct=Math.round(verified.size/7*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-label').textContent=verified.size+' of 7 complete';
+}
+
+function setupScrollExperience(){
+  panels.forEach((id,idx)=>{
+    const panel=document.getElementById('panel'+id);
+    panel.classList.remove('active');
+    if(idx>0)panel.classList.add('is-locked');
+    if(idx<6){
+      const verifyWrap=document.createElement('div');
+      verifyWrap.className='section-verify';
+      verifyWrap.innerHTML=`<button class="btn" id="verify${idx}" onclick="verifySection(${idx})">Mark section viewed</button>`;
+      panel.appendChild(verifyWrap);
+    }
+  });
+
+  const observer=new IntersectionObserver((entries)=>{
+    entries.forEach((entry)=>{
+      if(!entry.isIntersecting)return;
+      const idx=Number(entry.target.id.replace('panel',''));
+      entry.target.classList.add('is-visible');
+      if(idx<=unlockedUntil){
+        cur=idx;
+        document.querySelectorAll('.nav-item').forEach((el)=>el.classList.remove('active'));
+        document.getElementById('nav'+idx).classList.add('active');
+        document.getElementById('top-label').textContent=labels[idx];
+        document.getElementById('top-title').textContent=titles[idx];
+        document.getElementById('top-badge').textContent=badges[idx];
+      }
+    });
+  },{root:document.querySelector('.pf-content'),threshold:.25});
+
+  panels.forEach((id)=>observer.observe(document.getElementById('panel'+id)));
+  document.getElementById('panel0').classList.add('is-visible');
+  verifySection(0);
+}
 
 renderQuiz();
+setupScrollExperience();
 </script>
