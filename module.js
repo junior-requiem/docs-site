@@ -1,8 +1,6 @@
 const modules = window.learningModules;
 const storageKey = 'fusionPayrollCompletedModules';
 const completedModules = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
-const FOUNDATION_MODULE_ID = 'foundation-setup';
-const FOUNDATION_MODULE_FILE = 'oracle_payroll_section1_learning_module.html';
 
 const sectionNav = document.querySelector('#sectionNav');
 const breadcrumb = document.querySelector('#breadcrumb');
@@ -16,15 +14,8 @@ const transitionDurationMs = 240;
 const FOUNDATION_MODULE_ID = 'foundation-setup';
 const FOUNDATION_MODULE_FILE = 'oracle_payroll_section1_learning_module.html';
 
-const getModuleHref = (module) =>
-  module.id === FOUNDATION_MODULE_ID ? FOUNDATION_MODULE_FILE : `module.html?id=${module.id}`;
-
 const params = new URLSearchParams(window.location.search);
 const selectedId = params.get('id') || modules[0].id;
-if (selectedId === FOUNDATION_MODULE_ID) {
-  window.location.replace(FOUNDATION_MODULE_FILE);
-}
-
 let moduleIndex = modules.findIndex((module) => module.id === selectedId);
 if (moduleIndex < 0) moduleIndex = 0;
 
@@ -39,7 +30,7 @@ const renderNav = () => {
     .map(
       (module) => `
       <li>
-        <a href="${getModuleHref(module)}" class="nav-link ${module.id === activeModule.id ? 'active' : ''}">
+        <a href="module.html?id=${module.id}" class="nav-link ${module.id === activeModule.id ? 'active' : ''}">
           ${module.title}
         </a>
       </li>
@@ -65,12 +56,11 @@ const setupSectionTransitions = () => {
   );
 
   document.addEventListener('click', (event) => {
-    const link = event.target.closest('a[href]');
+    const link = event.target.closest('a[href^="module.html?id="]');
     if (!link) return;
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (event.button !== 0) return;
     if (link.target && link.target !== '_self') return;
-    if (!link.getAttribute('href')?.includes('module.html?id=')) return;
 
     event.preventDefault();
     document.body.classList.add('is-transitioning');
@@ -195,8 +185,8 @@ const renderPager = () => {
   const next = modules[moduleIndex + 1];
 
   sectionPager.innerHTML = `
-    ${prev ? `<a class="module-btn nav-btn" href="${getModuleHref(prev)}">← ${prev.title}</a>` : '<span></span>'}
-    ${next ? `<a class="module-btn nav-btn" href="${getModuleHref(next)}">${next.title} →</a>` : ''}
+    ${prev ? `<a class="module-btn nav-btn" href="module.html?id=${prev.id}">← ${prev.title}</a>` : '<span></span>'}
+    ${next ? `<a class="module-btn nav-btn" href="module.html?id=${next.id}">${next.title} →</a>` : ''}
   `;
 };
 

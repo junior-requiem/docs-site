@@ -11,11 +11,6 @@ const totalCount = document.querySelector('#totalCount');
 const progressFill = document.querySelector('#progressFill');
 const progressBar = document.querySelector('#progressBar');
 const transitionDurationMs = 240;
-const FOUNDATION_MODULE_ID = 'foundation-setup';
-const FOUNDATION_MODULE_FILE = 'oracle_payroll_section1_learning_module.html';
-
-const getModuleHref = (module) =>
-  module.id === FOUNDATION_MODULE_ID ? FOUNDATION_MODULE_FILE : `module.html?id=${module.id}`;
 
 const saveProgress = () => {
   localStorage.setItem(storageKey, JSON.stringify([...completedModules]));
@@ -37,7 +32,7 @@ const createNav = () => {
     .map(
       (module) => `
       <li>
-        <a href="${getModuleHref(module)}" class="nav-link" data-module-id="${module.id}">
+        <a href="module.html?id=${module.id}" class="nav-link" data-module-id="${module.id}">
           ${module.title}
         </a>
       </li>
@@ -64,7 +59,7 @@ const createModules = () => {
             <h2 class="module-title">${module.title}</h2>
             <p class="module-summary">${module.summary}</p>
           </span>
-          <a href="${getModuleHref(module)}" class="module-btn nav-btn">Open section →</a>
+          <a href="module.html?id=${module.id}" class="module-btn nav-btn">Open section →</a>
         </div>
 
         <div class="module-content">
@@ -126,10 +121,8 @@ const applySearch = () => {
 
 const setupIndexTransitions = () => {
   document.addEventListener('click', (event) => {
-    const link = event.target.closest('a[href]');
+    const link = event.target.closest('a[href^="module.html?id="]');
     if (!link) return;
-    const href = link.getAttribute('href') || '';
-    if (!href.startsWith('module.html?id=') && href !== FOUNDATION_MODULE_FILE) return;
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (event.button !== 0) return;
     if (link.target && link.target !== '_self') return;
